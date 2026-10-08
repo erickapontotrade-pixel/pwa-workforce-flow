@@ -1,6 +1,8 @@
-# Correção do projeto atual
-- [x] Corrigir referências quebradas sem criar módulos ou mudar o visual.
-- [x] Verificar rotas, consultas e falhas de execução.
-- [x] Executar 13 regressões, verificar preview, login inválido e bloqueio das nove páginas protegidas.
-- [ ] Testar login válido, isolamento entre empresas e ações de perfil, candidaturas, freelancer, evidências e ganhos — bloqueado: nenhuma conta cadastrada; requer conta confirmada e registros reais de teste.
-- [x] Informar resultados e limitações dos testes.
+# Concluir núcleo A Ponto MOVE
+- [ ] Reutilizar estruturas e concluir vagas, candidaturas e recrutamento.
+- [ ] Concluir publicação freelancer, agenda, seleção, execução, evidências, aprovação e avaliações.
+- [ ] Concluir banco de talentos, empresas, lojas e relatórios integrados.
+- [ ] Validar autorização, isolamento e queries; criar contas fictícias TESTE/DEMO.
+- [ ] Testar autenticação, formulários, fluxos integrados, rotas e mobile.
+- [ ] Verificar build automático e preview; informar resultados e pendências reais.
+- Não implementar pagamentos, integrações externas ou painéis definitivos separados.
