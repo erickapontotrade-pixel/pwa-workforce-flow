@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { Database } from "@/integrations/supabase/types";
 
-export function Recruitment({ jobId }: { jobId?: string }) { return <CompanyScope>{c => <Candidates companyId={c.id} jobId={jobId} />}</CompanyScope>; }
+export function Recruitment({ jobId }: { jobId?: string }) { return <CompanyScope>{c => <Candidates companyId={c.id} {...(jobId ? { jobId } : {})} />}</CompanyScope>; }
 function Candidates({ companyId, jobId }: { companyId: string; jobId?: string }) {
   const qc = useQueryClient(); const [selected, setSelected] = useState("");
   const q = useQuery({ queryKey: ["recruitment", companyId, jobId], queryFn: async () => { let query = supabase.from("applications").select("*, jobs!inner(title,company_id), professionals(full_name,headline)").eq("jobs.company_id", companyId); if (jobId) query = query.eq("job_id", jobId); const r = await query.order("created_at"); if (r.error) throw r.error; return r.data; } });
