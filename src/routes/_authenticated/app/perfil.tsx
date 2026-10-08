@@ -55,9 +55,14 @@ function Perfil() {
     if (!f.modality) { toast.error("Escolha a modalidade de trabalho (obrigatório)."); return; }
     setBusy(true);
     const payload: Database["public"]["Tables"]["professionals"]["Update"] = { modality: f.modality as Professional["modality"], immediate_availability: !!f.immediate_availability, has_vehicle: !!f.has_vehicle, talent_pool_consent: !!f.talent_pool_consent };
-    FIELDS.forEach(([k]) => (payload[k] = String(f[k] ?? "") || null));
+    FIELDS.forEach(([k]) => {
+      if (k !== "full_name") payload[k] = String(f[k] ?? "") || null;
+    });
     payload.full_name = String(f.full_name ?? "");
-    NUMS.forEach(([k]) => (payload[k] = f[k] === "" || f[k] == null ? null : Number(f[k])));
+    NUMS.forEach(([k]) => {
+      if (k !== "travel_radius_km") payload[k] = f[k] === "" || f[k] == null ? null : Number(f[k]);
+    });
+    payload.travel_radius_km = f.travel_radius_km === "" || f.travel_radius_km == null ? 10 : Number(f.travel_radius_km);
     if (payload.travel_radius_km == null) payload.travel_radius_km = 10;
     const { error } = await supabase.from("professionals").update(payload).eq("id", p.id);
     setBusy(false);
