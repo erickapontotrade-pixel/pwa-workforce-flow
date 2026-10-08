@@ -144,34 +144,55 @@ export type Database = {
       }
       companies: {
         Row: {
+          active: boolean
+          address: string | null
           city: string | null
           cnpj: string | null
+          contact_name: string | null
           created_at: string
           created_by: string
+          email: string | null
           id: string
+          legal_name: string | null
           name: string
+          phone: string | null
           segment: string | null
           settings: Json
+          trade_name: string | null
         }
         Insert: {
+          active?: boolean
+          address?: string | null
           city?: string | null
           cnpj?: string | null
+          contact_name?: string | null
           created_at?: string
           created_by: string
+          email?: string | null
           id?: string
+          legal_name?: string | null
           name: string
+          phone?: string | null
           segment?: string | null
           settings?: Json
+          trade_name?: string | null
         }
         Update: {
+          active?: boolean
+          address?: string | null
           city?: string | null
           cnpj?: string | null
+          contact_name?: string | null
           created_at?: string
           created_by?: string
+          email?: string | null
           id?: string
+          legal_name?: string | null
           name?: string
+          phone?: string | null
           segment?: string | null
           settings?: Json
+          trade_name?: string | null
         }
         Relationships: []
       }
@@ -730,6 +751,7 @@ export type Database = {
           schedule: string | null
           start_date: string | null
           status: Database["public"]["Enums"]["job_status"]
+          store_id: string | null
           title: string
           workload: string | null
         }
@@ -748,6 +770,7 @@ export type Database = {
           schedule?: string | null
           start_date?: string | null
           status?: Database["public"]["Enums"]["job_status"]
+          store_id?: string | null
           title: string
           workload?: string | null
         }
@@ -766,6 +789,7 @@ export type Database = {
           schedule?: string | null
           start_date?: string | null
           status?: Database["public"]["Enums"]["job_status"]
+          store_id?: string | null
           title?: string
           workload?: string | null
         }
@@ -775,6 +799,13 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "jobs_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
             referencedColumns: ["id"]
           },
         ]
@@ -1076,34 +1107,49 @@ export type Database = {
       }
       stores: {
         Row: {
+          active: boolean
           address: string | null
           city: string | null
           company_id: string
+          contact_name: string | null
           created_at: string
+          hours: string | null
           id: string
           lat: number | null
           lng: number | null
           name: string
+          phone: string | null
+          region: string | null
         }
         Insert: {
+          active?: boolean
           address?: string | null
           city?: string | null
           company_id: string
+          contact_name?: string | null
           created_at?: string
+          hours?: string | null
           id?: string
           lat?: number | null
           lng?: number | null
           name: string
+          phone?: string | null
+          region?: string | null
         }
         Update: {
+          active?: boolean
           address?: string | null
           city?: string | null
           company_id?: string
+          contact_name?: string | null
           created_at?: string
+          hours?: string | null
           id?: string
           lat?: number | null
           lng?: number | null
           name?: string
+          phone?: string | null
+          region?: string | null
         }
         Relationships: [
           {
@@ -1111,6 +1157,45 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      talent_pool: {
+        Row: {
+          company_id: string
+          created_at: string
+          created_by: string
+          id: string
+          professional_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          professional_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          professional_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "talent_pool_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "talent_pool_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
             referencedColumns: ["id"]
           },
         ]
@@ -1140,7 +1225,13 @@ export type Database = {
     Functions: {
       application_company: { Args: { _app_id: string }; Returns: string }
       application_owner: { Args: { _app_id: string }; Returns: string }
+      approve_freelance: {
+        Args: { _approve: boolean; _assignment_id: string }
+        Returns: undefined
+      }
       become_professional: { Args: never; Returns: string }
+      can_read_professional: { Args: { _id: string }; Returns: boolean }
+      company_display_name: { Args: { _id: string }; Returns: string }
       create_company: {
         Args: { _city: string; _cnpj: string; _name: string; _segment: string }
         Returns: string

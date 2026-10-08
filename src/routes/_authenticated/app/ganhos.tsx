@@ -18,7 +18,8 @@ function Ganhos() {
       if (!p) throw new Error("Perfil profissional não encontrado");
       const { data, error } = await supabase.from("freelance_earnings").select("*, companies(name)").eq("professional_id", p.id).order("reference_date", { ascending: false });
       if (error) throw error;
-      return data;
+      const names = new Map(await Promise.all(Array.from(new Set((data ?? []).map(e => e.company_id))).map(async id => { const r = await supabase.rpc("company_display_name", { _id: id }); if (r.error) throw r.error; return [id, r.data] as const; })));
+      return (data ?? []).map(e => ({ ...e, companies: { name: names.get(e.company_id) } }));
     },
   });
   const sum = (st: string[]) => (q.data ?? []).filter((e) => st.includes(e.status)).reduce((s, e) => s + Number(e.amount), 0);

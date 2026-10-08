@@ -22,7 +22,8 @@ function Vagas() {
     queryFn: async () => {
       const { data, error } = await supabase.from("jobs").select("*, companies(name)").eq("status", "publicada").order("created_at", { ascending: false });
       if (error) throw error;
-      return data;
+      const names = new Map(await Promise.all(Array.from(new Set((data ?? []).map(j => j.company_id))).map(async id => { const r = await supabase.rpc("company_display_name", { _id: id }); if (r.error) throw r.error; return [id, r.data] as const; })));
+      return (data ?? []).map(j => ({ ...j, companies: { name: names.get(j.company_id) } }));
     },
   });
   const mine = useQuery({
@@ -52,7 +53,7 @@ function Vagas() {
     <div>
       <PageHeader eyebrow="Trabalho fixo" title="Vagas" desc="Vagas abertas por empresas na plataforma." />
       <Input placeholder="Buscar por cargo, cidade..." value={q} onChange={(e) => setQ(e.target.value)} className="mb-4 max-w-md" />
-      {list.isLoading ? <Loading /> : list.error ? <ErrorState error={list.error} retry={() => list.refetch()} /> : rows.length === 0 ? (
+      {list.isLoading ? <Loading /> : list.error || mine.error ? <ErrorState error={list.error || mine.error} retry={() => { list.refetch(); mine.refetch(); }} /> : rows.length === 0 ? (
         <Empty title="Nenhuma vaga aberta no momento">Novas vagas aparecem aqui assim que as empresas publicarem.</Empty>
       ) : (
         <div className="grid gap-3 md:grid-cols-2">
@@ -65,7 +66,9 @@ function Vagas() {
                 </div>
                 <Briefcase className="h-5 w-5 text-muted-foreground" />
               </div>
-              <p className="mt-3 line-clamp-3 text-sm text-muted-foreground">{j.description}</p>
+              <p className="mt-3 whitespace-pre-wrap text-sm text-muted-foreground">{j.description}</p>
+              {j.requirements && <p className="mt-2 text-sm">Requisitos: {j.requirements}</p>}
+              <p className="mt-2 text-sm text-muted-foreground">{j.openings} vagas · {j.workload}</p>
               <div className="mt-3 flex flex-wrap gap-2 text-xs">
                 {j.city && <Badge variant="muted"><MapPin className="mr-1 h-3 w-3" />{j.city}</Badge>}
                 {j.salary && <Badge variant="muted">{brl(j.salary)}</Badge>}

@@ -17,10 +17,12 @@ function Candidaturas() {
     queryFn: async () => {
       if (!p) throw new Error("Perfil profissional não encontrado");
       const { data, error } = await supabase.from("applications")
-        .select("*, jobs(title, city, companies(name)), interviews(scheduled_at, status, location)")
+        .select("*, jobs(title, city, company_id), interviews(scheduled_at, status, location)")
         .eq("professional_id", p.id).order("created_at", { ascending: false });
       if (error) throw error;
-      return data;
+      const ids = Array.from(new Set((data ?? []).flatMap(a => a.jobs ? [a.jobs.company_id] : [])));
+      const names = new Map(await Promise.all(ids.map(async id => { const r = await supabase.rpc("company_display_name", { _id: id }); if (r.error) throw r.error; return [id, r.data] as const; })));
+      return (data ?? []).map(a => ({ ...a, jobs: a.jobs ? { ...a.jobs, companies: { name: names.get(a.jobs.company_id) } } : null }));
     },
   });
   return (

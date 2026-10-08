@@ -33,6 +33,13 @@ const PRO_EXTRA = [
 ] as const;
 const CO_NAV = [
   { to: "/app/empresa", label: "Dashboard", icon: LayoutDashboard, exact: true },
+  { to: "/app/empresa/vagas", label: "Gestão de vagas", icon: Briefcase },
+  { to: "/app/empresa/recrutamento", label: "Recrutamento", icon: ListChecks },
+  { to: "/app/empresa/freela", label: "MOVE FREELA", icon: Zap },
+  { to: "/app/empresa/talentos", label: "Banco de talentos", icon: User },
+  { to: "/app/empresa/empresas", label: "Empresas", icon: Building2 },
+  { to: "/app/empresa/lojas", label: "Lojas", icon: Building2 },
+  { to: "/app/empresa/relatorios", label: "Relatórios", icon: ListChecks },
 ] as const;
 
 function AppShell() {
@@ -58,12 +65,13 @@ function AppShell() {
   if (!me.data) return <Loading />;
 
   const { professional, company } = me.data;
-  if (!professional && !company) return <Onboarding />;
+  if (!professional && !company && !me.data.isStaff) return <Onboarding />;
 
   async function signOut() {
     await qc.cancelQueries();
     qc.clear();
-    await supabase.auth.signOut();
+    const { error } = await supabase.auth.signOut();
+    if (error) { toast.error(errMsg(error)); return; }
     navigate({ to: "/auth", replace: true });
   }
 
@@ -85,9 +93,9 @@ function AppShell() {
               ))}
             </div>
           )}
-          {company && (
+          {(company || me.data.isStaff) && (
             <div>
-              <p className="eyebrow px-3 pb-2 text-sidebar-foreground/50">{company.name}</p>
+              <p className="eyebrow px-3 pb-2 text-sidebar-foreground/50">{company?.name ?? "A Ponto"}</p>
               {CO_NAV.map((n) => (
                 <Link key={n.to} to={n.to} className={cn("flex items-center gap-3 rounded-md px-3 py-2 text-sm", isActive(n.to, "exact" in n && n.exact) ? "bg-sidebar-accent text-sidebar-accent-foreground signal-bar" : "hover:bg-sidebar-accent/60")}>
                   <n.icon className="h-4 w-4" /> {n.label}
@@ -125,7 +133,7 @@ function AppShell() {
             <Button variant="ghost" size="icon" className="lg:hidden" onClick={signOut} aria-label="Sair"><LogOut /></Button>
           </div>
         </header>
-        {company && inCompany && (
+        {(company || me.data.isStaff) && (inCompany || !professional) && (
           <nav className="flex gap-1 overflow-x-auto border-b bg-card px-3 py-2 lg:hidden">
             {CO_NAV.map((n) => (
               <Link key={n.to} to={n.to} className={cn("whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-medium", isActive(n.to, "exact" in n && n.exact) ? "bg-primary text-primary-foreground" : "text-muted-foreground")}>{n.label}</Link>
