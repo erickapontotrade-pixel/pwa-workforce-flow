@@ -13,3 +13,6 @@
 - Navigation must target implemented route files only; deferred modules must not introduce dead links, because TanStack route references are type checked.
 - Reuse the existing onboarding company form for registration from the app shell, because adding a company must not depend on an unimplemented settings page.
 - Every parallel database query must propagate its errors and guard optional profile/company references, because failed reads must not masquerade as empty results.
+- Enterprise modules use shared company selection and existing browser client with RLS; ordinary access never uses privileged clients.
+- Shared record forms own input validation and error states, while focused module components own table-specific persistence.
+- Company private rows are member/staff scoped; published opportunities expose company names through a narrow display-name function instead of exposing company records.

@@ -69,7 +69,7 @@ export function downloadCSV(filename: string, rows: Record<string, unknown>[]) {
   const first = rows[0];
   if (!first) return;
   const headers = Object.keys(first);
-  const esc = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+  const esc = (v: unknown) => { const value = String(v ?? ""); return `"${(/^[=+@\-\t\r]/.test(value) ? "'" + value : value).replace(/"/g, '""')}"`; };
   const csv = [headers.join(";"), ...rows.map((r) => headers.map((h) => esc(r[h])).join(";"))].join("\n");
   const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" });
   const a = document.createElement("a");
