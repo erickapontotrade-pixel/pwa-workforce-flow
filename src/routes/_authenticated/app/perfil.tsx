@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { useMe, errMsg } from "@/lib/session";
+import { useMe, errMsg, type Professional } from "@/lib/session";
 import { MODALITY_LABEL, WEEKDAYS } from "@/lib/labels";
 import { Empty, ErrorState, Loading, PageHeader } from "@/components/move/states";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import type { Database } from "@/integrations/supabase/types";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/app/perfil")({ head: () => ({ meta: [{ title: "Meu perfil — A Ponto MOVE" }, { name: "description", content: "Dados profissionais, modalidade e disponibilidade." }, { property: "og:title", content: "Meu perfil — A Ponto MOVE" }, { property: "og:description", content: "Dados profissionais, modalidade e disponibilidade." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }), component: Perfil });
@@ -25,7 +26,7 @@ function Perfil() {
   const me = useMe();
   const qc = useQueryClient();
   const p = me.data?.professional;
-  const [f, setF] = useState<Record<string, any>>({});
+  const [f, setF] = useState<Partial<Record<keyof Professional, string | number | boolean | null>>>({});
   const [busy, setBusy] = useState(false);
   useEffect(() => { if (p) setF(p); }, [p]);
 
@@ -50,17 +51,17 @@ function Perfil() {
 
   async function save() {
     if (!p) return;
-    if (!f.full_name?.trim()) return toast.error("Informe seu nome completo.");
-    if (!f.modality) return toast.error("Escolha a modalidade de trabalho (obrigatório).");
+    if (!String(f.full_name ?? "").trim()) { toast.error("Informe seu nome completo."); return; }
+    if (!f.modality) { toast.error("Escolha a modalidade de trabalho (obrigatório)."); return; }
     setBusy(true);
-    const payload: Record<string, any> = { modality: f.modality, immediate_availability: !!f.immediate_availability, has_vehicle: !!f.has_vehicle, talent_pool_consent: !!f.talent_pool_consent };
-    FIELDS.forEach(([k]) => (payload[k] = f[k] || null));
-    payload.full_name = f.full_name || "";
+    const payload: Database["public"]["Tables"]["professionals"]["Update"] = { modality: f.modality as Professional["modality"], immediate_availability: !!f.immediate_availability, has_vehicle: !!f.has_vehicle, talent_pool_consent: !!f.talent_pool_consent };
+    FIELDS.forEach(([k]) => (payload[k] = String(f[k] ?? "") || null));
+    payload.full_name = String(f.full_name ?? "");
     NUMS.forEach(([k]) => (payload[k] = f[k] === "" || f[k] == null ? null : Number(f[k])));
     if (payload.travel_radius_km == null) payload.travel_radius_km = 10;
     const { error } = await supabase.from("professionals").update(payload).eq("id", p.id);
     setBusy(false);
-    if (error) return toast.error(errMsg(error));
+    if (error) { toast.error(errMsg(error)); return; }
     toast.success("Perfil salvo");
     qc.invalidateQueries({ queryKey: ["me"] });
   }
@@ -73,20 +74,30 @@ function Perfil() {
   }
   async function addSlot() {
     if (!p) return;
-    if (!slot.start_time || !slot.end_time || slot.start_time >= slot.end_time) return toast.error("O horário final deve ser posterior ao inicial.");
+    if (!slot.start_time || !slot.end_time || slot.start_time >= slot.end_time) { toast.error("O horário final deve ser posterior ao inicial."); return; }
     const { error } = await supabase.from("availability").insert({ ...slot, professional_id: p.id });
-    if (error) return toast.error(errMsg(error));
+    if (error) { toast.error(errMsg(error)); return; }
     toast.success("Horário adicionado");
     extra.refetch();
   }
   async function exportData() {
     if (!p) return;
-    const tables = ["professionals", "professional_skills", "availability", "applications", "freelance_applications", "freelance_assignments", "freelance_earnings", "documents"] as const;
+    const results = await Promise.all([
+      supabase.from("professionals").select("*").eq("id", p.id),
+      supabase.from("professional_skills").select("*").eq("professional_id", p.id),
+      supabase.from("availability").select("*").eq("professional_id", p.id),
+      supabase.from("applications").select("*").eq("professional_id", p.id),
+      supabase.from("freelance_applications").select("*").eq("professional_id", p.id),
+      supabase.from("freelance_assignments").select("*").eq("professional_id", p.id),
+      supabase.from("freelance_earnings").select("*").eq("professional_id", p.id),
+      supabase.from("documents").select("*").eq("professional_id", p.id),
+    ]);
+    const tables = ["professionals", "professional_skills", "availability", "applications", "freelance_applications", "freelance_assignments", "freelance_earnings", "documents"];
     const out: Record<string, unknown> = {};
-    for (const t of tables) {
-      const { data, error } = await supabase.from(t).select("*").eq(t === "professionals" ? "id" : "professional_id", p.id);
-      if (error) return toast.error(errMsg(error));
-      out[t] = data;
+    for (const [index, r] of results.entries()) {
+      if (r.error) { toast.error(errMsg(r.error)); return; }
+      const table = tables[index];
+      if (table) out[table] = r.data;
     }
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([JSON.stringify(out, null, 2)], { type: "application/json" }));
@@ -108,8 +119,8 @@ function Perfil() {
         </div>
       </section>
       <section className="grid gap-4 rounded-lg border bg-card p-5 shadow-card sm:grid-cols-2">
-        {FIELDS.map(([k, l]) => <div key={k} className="space-y-1.5"><Label>{l}</Label><Input value={f[k] ?? ""} maxLength={200} onChange={(e) => setF({ ...f, [k]: e.target.value })} /></div>)}
-        {NUMS.map(([k, l]) => <div key={k} className="space-y-1.5"><Label>{l}</Label><Input type="number" min={0} value={f[k] ?? ""} onChange={(e) => setF({ ...f, [k]: e.target.value })} /></div>)}
+        {FIELDS.map(([k, l]) => <div key={k} className="space-y-1.5"><Label>{l}</Label><Input value={String(f[k] ?? "")} maxLength={200} onChange={(e) => setF({ ...f, [k]: e.target.value })} /></div>)}
+        {NUMS.map(([k, l]) => <div key={k} className="space-y-1.5"><Label>{l}</Label><Input type="number" min={0} value={String(f[k] ?? "")} onChange={(e) => setF({ ...f, [k]: e.target.value })} /></div>)}
         <label className="flex items-center gap-2 text-sm"><Switch checked={!!f.immediate_availability} onCheckedChange={(v) => setF({ ...f, immediate_availability: v })} />Disponibilidade imediata</label>
         <label className="flex items-center gap-2 text-sm"><Switch checked={!!f.has_vehicle} onCheckedChange={(v) => setF({ ...f, has_vehicle: v })} />Tenho veículo</label>
         <label className="flex items-center gap-2 text-sm sm:col-span-2"><Switch checked={!!f.talent_pool_consent} onCheckedChange={(v) => setF({ ...f, talent_pool_consent: v })} />Autorizo aparecer no banco de talentos das empresas</label>
@@ -140,7 +151,7 @@ function Perfil() {
           {extra.data?.avail.map((a) => (
             <div key={a.id} className="flex items-center justify-between rounded-md bg-muted px-3 py-2 text-sm">
               <span>{WEEKDAYS[a.weekday]} {a.start_time.slice(0, 5)}–{a.end_time.slice(0, 5)} · {a.kind === "fixo" ? "Jornada fixa" : "Livre"}</span>
-              <button className="text-xs text-destructive" onClick={async () => { const { error } = await supabase.from("availability").delete().eq("id", a.id); if (error) return toast.error(errMsg(error)); toast.success("Horário removido"); extra.refetch(); }}>Remover</button>
+              <button className="text-xs text-destructive" onClick={async () => { const { error } = await supabase.from("availability").delete().eq("id", a.id); if (error) { toast.error(errMsg(error)); return; } toast.success("Horário removido"); extra.refetch(); }}>Remover</button>
             </div>
           ))}
         </div>

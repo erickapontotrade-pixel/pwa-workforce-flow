@@ -161,17 +161,17 @@ function Onboarding({ companyOnly = false, onComplete }: { companyOnly?: boolean
     setBusy(true);
     const { error } = await supabase.rpc("become_professional");
     setBusy(false);
-    if (error) return toast.error(errMsg(error));
+    if (error) { toast.error(errMsg(error)); return; }
     await qc.invalidateQueries({ queryKey: ["me"] });
     navigate({ to: "/app/perfil" });
   }
   async function createCo(e: React.FormEvent) {
     e.preventDefault();
-    if (co.name.trim().length < 2) return toast.error("Informe o nome da empresa");
+    if (co.name.trim().length < 2) { toast.error("Informe o nome da empresa"); return; }
     setBusy(true);
     const { error } = await supabase.rpc("create_company", { _name: co.name.trim(), _cnpj: co.cnpj, _city: co.city, _segment: co.segment });
     setBusy(false);
-    if (error) return toast.error(errMsg(error));
+    if (error) { toast.error(errMsg(error)); return; }
     toast.success("Empresa criada");
     await qc.invalidateQueries({ queryKey: ["me"] });
     onComplete?.();

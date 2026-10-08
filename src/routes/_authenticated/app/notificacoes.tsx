@@ -21,7 +21,7 @@ function Notifs() {
   });
   async function readAll() {
     const { error } = await supabase.from("notifications").update({ read_at: new Date().toISOString() }).is("read_at", null);
-    if (error) return toast.error(errMsg(error));
+    if (error) { toast.error(errMsg(error)); return; }
     toast.success("Notificações marcadas como lidas");
     qc.invalidateQueries({ queryKey: ["notifs"] });
     qc.invalidateQueries({ queryKey: ["notif-count"] });

@@ -104,7 +104,7 @@ function AssignmentCard({ a }: { a: A }) {
 
   async function upload(file: File) {
     if (!me) return;
-    if (file.size > 10 * 1024 * 1024) return toast.error("Arquivo acima de 10MB");
+    if (file.size > 10 * 1024 * 1024) { toast.error("Arquivo acima de 10MB"); return; }
     setUploading(true);
     try {
       const path = `${me.user.id}/${a.id}/${Date.now()}-${file.name.replace(/[^\w.-]/g, "_")}`;

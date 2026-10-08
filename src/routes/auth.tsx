@@ -68,7 +68,7 @@ function AuthPage() {
         setMode("entrar");
       } else if (mode === "cadastro") {
         const parsed = signupSchema.safeParse(form);
-        if (!parsed.success) throw new Error(parsed.error.issues[0].message);
+        if (!parsed.success) throw new Error(parsed.error.issues[0]?.message ?? "Dados inválidos");
         if (!consent) throw new Error("É preciso aceitar a política de privacidade (LGPD).");
         const { data, error } = await supabase.auth.signUp({
           email: parsed.data.email,
