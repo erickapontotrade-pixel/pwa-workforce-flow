@@ -15,6 +15,13 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedAppRouteRouteImport } from './routes/_authenticated/app/route'
+import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app/index'
+import { Route as AuthenticatedAppCandidaturasRouteImport } from './routes/_authenticated/app/candidaturas'
+import { Route as AuthenticatedAppCheckinRouteImport } from './routes/_authenticated/app/checkin'
+import { Route as AuthenticatedAppGanhosRouteImport } from './routes/_authenticated/app/ganhos'
+import { Route as AuthenticatedAppNotificacoesRouteImport } from './routes/_authenticated/app/notificacoes'
+import { Route as AuthenticatedAppOportunidadesRouteImport } from './routes/_authenticated/app/oportunidades'
+import { Route as AuthenticatedAppVagasRouteImport } from './routes/_authenticated/app/vagas'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -45,20 +52,71 @@ const AuthenticatedAppRouteRoute = AuthenticatedAppRouteRouteImport.update({
   path: '/app',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAppRouteRoute,
+} as any)
+const AuthenticatedAppCandidaturasRoute =
+  AuthenticatedAppCandidaturasRouteImport.update({
+    id: '/candidaturas',
+    path: '/candidaturas',
+    getParentRoute: () => AuthenticatedAppRouteRoute,
+  } as any)
+const AuthenticatedAppCheckinRoute = AuthenticatedAppCheckinRouteImport.update({
+  id: '/checkin',
+  path: '/checkin',
+  getParentRoute: () => AuthenticatedAppRouteRoute,
+} as any)
+const AuthenticatedAppGanhosRoute = AuthenticatedAppGanhosRouteImport.update({
+  id: '/ganhos',
+  path: '/ganhos',
+  getParentRoute: () => AuthenticatedAppRouteRoute,
+} as any)
+const AuthenticatedAppNotificacoesRoute =
+  AuthenticatedAppNotificacoesRouteImport.update({
+    id: '/notificacoes',
+    path: '/notificacoes',
+    getParentRoute: () => AuthenticatedAppRouteRoute,
+  } as any)
+const AuthenticatedAppOportunidadesRoute =
+  AuthenticatedAppOportunidadesRouteImport.update({
+    id: '/oportunidades',
+    path: '/oportunidades',
+    getParentRoute: () => AuthenticatedAppRouteRoute,
+  } as any)
+const AuthenticatedAppVagasRoute = AuthenticatedAppVagasRouteImport.update({
+  id: '/vagas',
+  path: '/vagas',
+  getParentRoute: () => AuthenticatedAppRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/app': typeof AuthenticatedAppRouteRoute
+  '/app': typeof AuthenticatedAppRouteRouteWithChildren
+  '/app/candidaturas': typeof AuthenticatedAppCandidaturasRoute
+  '/app/checkin': typeof AuthenticatedAppCheckinRoute
+  '/app/ganhos': typeof AuthenticatedAppGanhosRoute
+  '/app/notificacoes': typeof AuthenticatedAppNotificacoesRoute
+  '/app/oportunidades': typeof AuthenticatedAppOportunidadesRoute
+  '/app/vagas': typeof AuthenticatedAppVagasRoute
+  '/app/': typeof AuthenticatedAppIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/app': typeof AuthenticatedAppRouteRoute
+  '/app/candidaturas': typeof AuthenticatedAppCandidaturasRoute
+  '/app/checkin': typeof AuthenticatedAppCheckinRoute
+  '/app/ganhos': typeof AuthenticatedAppGanhosRoute
+  '/app/notificacoes': typeof AuthenticatedAppNotificacoesRoute
+  '/app/oportunidades': typeof AuthenticatedAppOportunidadesRoute
+  '/app/vagas': typeof AuthenticatedAppVagasRoute
+  '/app': typeof AuthenticatedAppIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -67,13 +125,43 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/_authenticated/app': typeof AuthenticatedAppRouteRoute
+  '/_authenticated/app': typeof AuthenticatedAppRouteRouteWithChildren
+  '/_authenticated/app/candidaturas': typeof AuthenticatedAppCandidaturasRoute
+  '/_authenticated/app/checkin': typeof AuthenticatedAppCheckinRoute
+  '/_authenticated/app/ganhos': typeof AuthenticatedAppGanhosRoute
+  '/_authenticated/app/notificacoes': typeof AuthenticatedAppNotificacoesRoute
+  '/_authenticated/app/oportunidades': typeof AuthenticatedAppOportunidadesRoute
+  '/_authenticated/app/vagas': typeof AuthenticatedAppVagasRoute
+  '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/privacidade' | '/reset-password' | '/app'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/privacidade'
+    | '/reset-password'
+    | '/app'
+    | '/app/candidaturas'
+    | '/app/checkin'
+    | '/app/ganhos'
+    | '/app/notificacoes'
+    | '/app/oportunidades'
+    | '/app/vagas'
+    | '/app/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/privacidade' | '/reset-password' | '/app'
+  to:
+    | '/'
+    | '/auth'
+    | '/privacidade'
+    | '/reset-password'
+    | '/app/candidaturas'
+    | '/app/checkin'
+    | '/app/ganhos'
+    | '/app/notificacoes'
+    | '/app/oportunidades'
+    | '/app/vagas'
+    | '/app'
   id:
     | '__root__'
     | '/'
@@ -82,6 +170,13 @@ export interface FileRouteTypes {
     | '/privacidade'
     | '/reset-password'
     | '/_authenticated/app'
+    | '/_authenticated/app/candidaturas'
+    | '/_authenticated/app/checkin'
+    | '/_authenticated/app/ganhos'
+    | '/_authenticated/app/notificacoes'
+    | '/_authenticated/app/oportunidades'
+    | '/_authenticated/app/vagas'
+    | '/_authenticated/app/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -136,15 +231,89 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppRouteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/app/': {
+      id: '/_authenticated/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
+    }
+    '/_authenticated/app/candidaturas': {
+      id: '/_authenticated/app/candidaturas'
+      path: '/candidaturas'
+      fullPath: '/app/candidaturas'
+      preLoaderRoute: typeof AuthenticatedAppCandidaturasRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
+    }
+    '/_authenticated/app/checkin': {
+      id: '/_authenticated/app/checkin'
+      path: '/checkin'
+      fullPath: '/app/checkin'
+      preLoaderRoute: typeof AuthenticatedAppCheckinRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
+    }
+    '/_authenticated/app/ganhos': {
+      id: '/_authenticated/app/ganhos'
+      path: '/ganhos'
+      fullPath: '/app/ganhos'
+      preLoaderRoute: typeof AuthenticatedAppGanhosRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
+    }
+    '/_authenticated/app/notificacoes': {
+      id: '/_authenticated/app/notificacoes'
+      path: '/notificacoes'
+      fullPath: '/app/notificacoes'
+      preLoaderRoute: typeof AuthenticatedAppNotificacoesRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
+    }
+    '/_authenticated/app/oportunidades': {
+      id: '/_authenticated/app/oportunidades'
+      path: '/oportunidades'
+      fullPath: '/app/oportunidades'
+      preLoaderRoute: typeof AuthenticatedAppOportunidadesRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
+    }
+    '/_authenticated/app/vagas': {
+      id: '/_authenticated/app/vagas'
+      path: '/vagas'
+      fullPath: '/app/vagas'
+      preLoaderRoute: typeof AuthenticatedAppVagasRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
+    }
   }
 }
 
+interface AuthenticatedAppRouteRouteChildren {
+  AuthenticatedAppCandidaturasRoute: typeof AuthenticatedAppCandidaturasRoute
+  AuthenticatedAppCheckinRoute: typeof AuthenticatedAppCheckinRoute
+  AuthenticatedAppGanhosRoute: typeof AuthenticatedAppGanhosRoute
+  AuthenticatedAppNotificacoesRoute: typeof AuthenticatedAppNotificacoesRoute
+  AuthenticatedAppOportunidadesRoute: typeof AuthenticatedAppOportunidadesRoute
+  AuthenticatedAppVagasRoute: typeof AuthenticatedAppVagasRoute
+  AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
+}
+
+const AuthenticatedAppRouteRouteChildren: AuthenticatedAppRouteRouteChildren = {
+  AuthenticatedAppCandidaturasRoute: AuthenticatedAppCandidaturasRoute,
+  AuthenticatedAppCheckinRoute: AuthenticatedAppCheckinRoute,
+  AuthenticatedAppGanhosRoute: AuthenticatedAppGanhosRoute,
+  AuthenticatedAppNotificacoesRoute: AuthenticatedAppNotificacoesRoute,
+  AuthenticatedAppOportunidadesRoute: AuthenticatedAppOportunidadesRoute,
+  AuthenticatedAppVagasRoute: AuthenticatedAppVagasRoute,
+  AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
+}
+
+const AuthenticatedAppRouteRouteWithChildren =
+  AuthenticatedAppRouteRoute._addFileChildren(
+    AuthenticatedAppRouteRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
-  AuthenticatedAppRouteRoute: typeof AuthenticatedAppRouteRoute
+  AuthenticatedAppRouteRoute: typeof AuthenticatedAppRouteRouteWithChildren
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedAppRouteRoute: AuthenticatedAppRouteRoute,
+  AuthenticatedAppRouteRoute: AuthenticatedAppRouteRouteWithChildren,
 }
 
 const AuthenticatedRouteRouteWithChildren =

@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { fmtDateTime } from "@/lib/session";
@@ -37,7 +37,7 @@ function Notifs() {
                 {n.body && <p className="text-sm text-muted-foreground">{n.body}</p>}
                 <p className="mt-1 text-xs text-muted-foreground">{fmtDateTime(n.created_at)}</p>
               </div>
-              {n.link && <Link to={n.link} className="self-center text-sm underline">Abrir</Link>}
+              {n.link && <a href={n.link} className="self-center text-sm underline">Abrir</a>}
             </div>
           ))}
         </div>
