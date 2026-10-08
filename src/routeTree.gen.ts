@@ -24,6 +24,13 @@ import { Route as AuthenticatedAppOportunidadesRouteImport } from './routes/_aut
 import { Route as AuthenticatedAppPerfilRouteImport } from './routes/_authenticated/app/perfil'
 import { Route as AuthenticatedAppVagasRouteImport } from './routes/_authenticated/app/vagas'
 import { Route as AuthenticatedAppEmpresaIndexRouteImport } from './routes/_authenticated/app/empresa.index'
+import { Route as AuthenticatedAppEmpresaEmpresasRouteImport } from './routes/_authenticated/app/empresa.empresas'
+import { Route as AuthenticatedAppEmpresaFreelaRouteImport } from './routes/_authenticated/app/empresa.freela'
+import { Route as AuthenticatedAppEmpresaLojasRouteImport } from './routes/_authenticated/app/empresa.lojas'
+import { Route as AuthenticatedAppEmpresaRecrutamentoRouteImport } from './routes/_authenticated/app/empresa.recrutamento'
+import { Route as AuthenticatedAppEmpresaRelatoriosRouteImport } from './routes/_authenticated/app/empresa.relatorios'
+import { Route as AuthenticatedAppEmpresaTalentosRouteImport } from './routes/_authenticated/app/empresa.talentos'
+import { Route as AuthenticatedAppEmpresaVagasRouteImport } from './routes/_authenticated/app/empresa.vagas'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -103,6 +110,48 @@ const AuthenticatedAppEmpresaIndexRoute =
     path: '/empresa/',
     getParentRoute: () => AuthenticatedAppRouteRoute,
   } as any)
+const AuthenticatedAppEmpresaEmpresasRoute =
+  AuthenticatedAppEmpresaEmpresasRouteImport.update({
+    id: '/empresa/empresas',
+    path: '/empresa/empresas',
+    getParentRoute: () => AuthenticatedAppRouteRoute,
+  } as any)
+const AuthenticatedAppEmpresaFreelaRoute =
+  AuthenticatedAppEmpresaFreelaRouteImport.update({
+    id: '/empresa/freela',
+    path: '/empresa/freela',
+    getParentRoute: () => AuthenticatedAppRouteRoute,
+  } as any)
+const AuthenticatedAppEmpresaLojasRoute =
+  AuthenticatedAppEmpresaLojasRouteImport.update({
+    id: '/empresa/lojas',
+    path: '/empresa/lojas',
+    getParentRoute: () => AuthenticatedAppRouteRoute,
+  } as any)
+const AuthenticatedAppEmpresaRecrutamentoRoute =
+  AuthenticatedAppEmpresaRecrutamentoRouteImport.update({
+    id: '/empresa/recrutamento',
+    path: '/empresa/recrutamento',
+    getParentRoute: () => AuthenticatedAppRouteRoute,
+  } as any)
+const AuthenticatedAppEmpresaRelatoriosRoute =
+  AuthenticatedAppEmpresaRelatoriosRouteImport.update({
+    id: '/empresa/relatorios',
+    path: '/empresa/relatorios',
+    getParentRoute: () => AuthenticatedAppRouteRoute,
+  } as any)
+const AuthenticatedAppEmpresaTalentosRoute =
+  AuthenticatedAppEmpresaTalentosRouteImport.update({
+    id: '/empresa/talentos',
+    path: '/empresa/talentos',
+    getParentRoute: () => AuthenticatedAppRouteRoute,
+  } as any)
+const AuthenticatedAppEmpresaVagasRoute =
+  AuthenticatedAppEmpresaVagasRouteImport.update({
+    id: '/empresa/vagas',
+    path: '/empresa/vagas',
+    getParentRoute: () => AuthenticatedAppRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -118,6 +167,13 @@ export interface FileRoutesByFullPath {
   '/app/perfil': typeof AuthenticatedAppPerfilRoute
   '/app/vagas': typeof AuthenticatedAppVagasRoute
   '/app/': typeof AuthenticatedAppIndexRoute
+  '/app/empresa/empresas': typeof AuthenticatedAppEmpresaEmpresasRoute
+  '/app/empresa/freela': typeof AuthenticatedAppEmpresaFreelaRoute
+  '/app/empresa/lojas': typeof AuthenticatedAppEmpresaLojasRoute
+  '/app/empresa/recrutamento': typeof AuthenticatedAppEmpresaRecrutamentoRoute
+  '/app/empresa/relatorios': typeof AuthenticatedAppEmpresaRelatoriosRoute
+  '/app/empresa/talentos': typeof AuthenticatedAppEmpresaTalentosRoute
+  '/app/empresa/vagas': typeof AuthenticatedAppEmpresaVagasRoute
   '/app/empresa/': typeof AuthenticatedAppEmpresaIndexRoute
 }
 export interface FileRoutesByTo {
@@ -133,6 +189,13 @@ export interface FileRoutesByTo {
   '/app/perfil': typeof AuthenticatedAppPerfilRoute
   '/app/vagas': typeof AuthenticatedAppVagasRoute
   '/app': typeof AuthenticatedAppIndexRoute
+  '/app/empresa/empresas': typeof AuthenticatedAppEmpresaEmpresasRoute
+  '/app/empresa/freela': typeof AuthenticatedAppEmpresaFreelaRoute
+  '/app/empresa/lojas': typeof AuthenticatedAppEmpresaLojasRoute
+  '/app/empresa/recrutamento': typeof AuthenticatedAppEmpresaRecrutamentoRoute
+  '/app/empresa/relatorios': typeof AuthenticatedAppEmpresaRelatoriosRoute
+  '/app/empresa/talentos': typeof AuthenticatedAppEmpresaTalentosRoute
+  '/app/empresa/vagas': typeof AuthenticatedAppEmpresaVagasRoute
   '/app/empresa': typeof AuthenticatedAppEmpresaIndexRoute
 }
 export interface FileRoutesById {
@@ -151,6 +214,13 @@ export interface FileRoutesById {
   '/_authenticated/app/perfil': typeof AuthenticatedAppPerfilRoute
   '/_authenticated/app/vagas': typeof AuthenticatedAppVagasRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
+  '/_authenticated/app/empresa/empresas': typeof AuthenticatedAppEmpresaEmpresasRoute
+  '/_authenticated/app/empresa/freela': typeof AuthenticatedAppEmpresaFreelaRoute
+  '/_authenticated/app/empresa/lojas': typeof AuthenticatedAppEmpresaLojasRoute
+  '/_authenticated/app/empresa/recrutamento': typeof AuthenticatedAppEmpresaRecrutamentoRoute
+  '/_authenticated/app/empresa/relatorios': typeof AuthenticatedAppEmpresaRelatoriosRoute
+  '/_authenticated/app/empresa/talentos': typeof AuthenticatedAppEmpresaTalentosRoute
+  '/_authenticated/app/empresa/vagas': typeof AuthenticatedAppEmpresaVagasRoute
   '/_authenticated/app/empresa/': typeof AuthenticatedAppEmpresaIndexRoute
 }
 export interface FileRouteTypes {
@@ -169,6 +239,13 @@ export interface FileRouteTypes {
     | '/app/perfil'
     | '/app/vagas'
     | '/app/'
+    | '/app/empresa/empresas'
+    | '/app/empresa/freela'
+    | '/app/empresa/lojas'
+    | '/app/empresa/recrutamento'
+    | '/app/empresa/relatorios'
+    | '/app/empresa/talentos'
+    | '/app/empresa/vagas'
     | '/app/empresa/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -184,6 +261,13 @@ export interface FileRouteTypes {
     | '/app/perfil'
     | '/app/vagas'
     | '/app'
+    | '/app/empresa/empresas'
+    | '/app/empresa/freela'
+    | '/app/empresa/lojas'
+    | '/app/empresa/recrutamento'
+    | '/app/empresa/relatorios'
+    | '/app/empresa/talentos'
+    | '/app/empresa/vagas'
     | '/app/empresa'
   id:
     | '__root__'
@@ -201,6 +285,13 @@ export interface FileRouteTypes {
     | '/_authenticated/app/perfil'
     | '/_authenticated/app/vagas'
     | '/_authenticated/app/'
+    | '/_authenticated/app/empresa/empresas'
+    | '/_authenticated/app/empresa/freela'
+    | '/_authenticated/app/empresa/lojas'
+    | '/_authenticated/app/empresa/recrutamento'
+    | '/_authenticated/app/empresa/relatorios'
+    | '/_authenticated/app/empresa/talentos'
+    | '/_authenticated/app/empresa/vagas'
     | '/_authenticated/app/empresa/'
   fileRoutesById: FileRoutesById
 }
@@ -319,6 +410,55 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppEmpresaIndexRouteImport
       parentRoute: typeof AuthenticatedAppRouteRoute
     }
+    '/_authenticated/app/empresa/empresas': {
+      id: '/_authenticated/app/empresa/empresas'
+      path: '/empresa/empresas'
+      fullPath: '/app/empresa/empresas'
+      preLoaderRoute: typeof AuthenticatedAppEmpresaEmpresasRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
+    }
+    '/_authenticated/app/empresa/freela': {
+      id: '/_authenticated/app/empresa/freela'
+      path: '/empresa/freela'
+      fullPath: '/app/empresa/freela'
+      preLoaderRoute: typeof AuthenticatedAppEmpresaFreelaRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
+    }
+    '/_authenticated/app/empresa/lojas': {
+      id: '/_authenticated/app/empresa/lojas'
+      path: '/empresa/lojas'
+      fullPath: '/app/empresa/lojas'
+      preLoaderRoute: typeof AuthenticatedAppEmpresaLojasRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
+    }
+    '/_authenticated/app/empresa/recrutamento': {
+      id: '/_authenticated/app/empresa/recrutamento'
+      path: '/empresa/recrutamento'
+      fullPath: '/app/empresa/recrutamento'
+      preLoaderRoute: typeof AuthenticatedAppEmpresaRecrutamentoRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
+    }
+    '/_authenticated/app/empresa/relatorios': {
+      id: '/_authenticated/app/empresa/relatorios'
+      path: '/empresa/relatorios'
+      fullPath: '/app/empresa/relatorios'
+      preLoaderRoute: typeof AuthenticatedAppEmpresaRelatoriosRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
+    }
+    '/_authenticated/app/empresa/talentos': {
+      id: '/_authenticated/app/empresa/talentos'
+      path: '/empresa/talentos'
+      fullPath: '/app/empresa/talentos'
+      preLoaderRoute: typeof AuthenticatedAppEmpresaTalentosRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
+    }
+    '/_authenticated/app/empresa/vagas': {
+      id: '/_authenticated/app/empresa/vagas'
+      path: '/empresa/vagas'
+      fullPath: '/app/empresa/vagas'
+      preLoaderRoute: typeof AuthenticatedAppEmpresaVagasRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
+    }
   }
 }
 
@@ -331,6 +471,13 @@ interface AuthenticatedAppRouteRouteChildren {
   AuthenticatedAppPerfilRoute: typeof AuthenticatedAppPerfilRoute
   AuthenticatedAppVagasRoute: typeof AuthenticatedAppVagasRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
+  AuthenticatedAppEmpresaEmpresasRoute: typeof AuthenticatedAppEmpresaEmpresasRoute
+  AuthenticatedAppEmpresaFreelaRoute: typeof AuthenticatedAppEmpresaFreelaRoute
+  AuthenticatedAppEmpresaLojasRoute: typeof AuthenticatedAppEmpresaLojasRoute
+  AuthenticatedAppEmpresaRecrutamentoRoute: typeof AuthenticatedAppEmpresaRecrutamentoRoute
+  AuthenticatedAppEmpresaRelatoriosRoute: typeof AuthenticatedAppEmpresaRelatoriosRoute
+  AuthenticatedAppEmpresaTalentosRoute: typeof AuthenticatedAppEmpresaTalentosRoute
+  AuthenticatedAppEmpresaVagasRoute: typeof AuthenticatedAppEmpresaVagasRoute
   AuthenticatedAppEmpresaIndexRoute: typeof AuthenticatedAppEmpresaIndexRoute
 }
 
@@ -343,6 +490,15 @@ const AuthenticatedAppRouteRouteChildren: AuthenticatedAppRouteRouteChildren = {
   AuthenticatedAppPerfilRoute: AuthenticatedAppPerfilRoute,
   AuthenticatedAppVagasRoute: AuthenticatedAppVagasRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
+  AuthenticatedAppEmpresaEmpresasRoute: AuthenticatedAppEmpresaEmpresasRoute,
+  AuthenticatedAppEmpresaFreelaRoute: AuthenticatedAppEmpresaFreelaRoute,
+  AuthenticatedAppEmpresaLojasRoute: AuthenticatedAppEmpresaLojasRoute,
+  AuthenticatedAppEmpresaRecrutamentoRoute:
+    AuthenticatedAppEmpresaRecrutamentoRoute,
+  AuthenticatedAppEmpresaRelatoriosRoute:
+    AuthenticatedAppEmpresaRelatoriosRoute,
+  AuthenticatedAppEmpresaTalentosRoute: AuthenticatedAppEmpresaTalentosRoute,
+  AuthenticatedAppEmpresaVagasRoute: AuthenticatedAppEmpresaVagasRoute,
   AuthenticatedAppEmpresaIndexRoute: AuthenticatedAppEmpresaIndexRoute,
 }
 
