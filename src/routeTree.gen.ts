@@ -21,7 +21,9 @@ import { Route as AuthenticatedAppCheckinRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAppGanhosRouteImport } from './routes/_authenticated/app/ganhos'
 import { Route as AuthenticatedAppNotificacoesRouteImport } from './routes/_authenticated/app/notificacoes'
 import { Route as AuthenticatedAppOportunidadesRouteImport } from './routes/_authenticated/app/oportunidades'
+import { Route as AuthenticatedAppPerfilRouteImport } from './routes/_authenticated/app/perfil'
 import { Route as AuthenticatedAppVagasRouteImport } from './routes/_authenticated/app/vagas'
+import { Route as AuthenticatedAppEmpresaIndexRouteImport } from './routes/_authenticated/app/empresa.index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -85,11 +87,22 @@ const AuthenticatedAppOportunidadesRoute =
     path: '/oportunidades',
     getParentRoute: () => AuthenticatedAppRouteRoute,
   } as any)
+const AuthenticatedAppPerfilRoute = AuthenticatedAppPerfilRouteImport.update({
+  id: '/perfil',
+  path: '/perfil',
+  getParentRoute: () => AuthenticatedAppRouteRoute,
+} as any)
 const AuthenticatedAppVagasRoute = AuthenticatedAppVagasRouteImport.update({
   id: '/vagas',
   path: '/vagas',
   getParentRoute: () => AuthenticatedAppRouteRoute,
 } as any)
+const AuthenticatedAppEmpresaIndexRoute =
+  AuthenticatedAppEmpresaIndexRouteImport.update({
+    id: '/empresa/',
+    path: '/empresa/',
+    getParentRoute: () => AuthenticatedAppRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -102,8 +115,10 @@ export interface FileRoutesByFullPath {
   '/app/ganhos': typeof AuthenticatedAppGanhosRoute
   '/app/notificacoes': typeof AuthenticatedAppNotificacoesRoute
   '/app/oportunidades': typeof AuthenticatedAppOportunidadesRoute
+  '/app/perfil': typeof AuthenticatedAppPerfilRoute
   '/app/vagas': typeof AuthenticatedAppVagasRoute
   '/app/': typeof AuthenticatedAppIndexRoute
+  '/app/empresa/': typeof AuthenticatedAppEmpresaIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -115,8 +130,10 @@ export interface FileRoutesByTo {
   '/app/ganhos': typeof AuthenticatedAppGanhosRoute
   '/app/notificacoes': typeof AuthenticatedAppNotificacoesRoute
   '/app/oportunidades': typeof AuthenticatedAppOportunidadesRoute
+  '/app/perfil': typeof AuthenticatedAppPerfilRoute
   '/app/vagas': typeof AuthenticatedAppVagasRoute
   '/app': typeof AuthenticatedAppIndexRoute
+  '/app/empresa': typeof AuthenticatedAppEmpresaIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -131,8 +148,10 @@ export interface FileRoutesById {
   '/_authenticated/app/ganhos': typeof AuthenticatedAppGanhosRoute
   '/_authenticated/app/notificacoes': typeof AuthenticatedAppNotificacoesRoute
   '/_authenticated/app/oportunidades': typeof AuthenticatedAppOportunidadesRoute
+  '/_authenticated/app/perfil': typeof AuthenticatedAppPerfilRoute
   '/_authenticated/app/vagas': typeof AuthenticatedAppVagasRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
+  '/_authenticated/app/empresa/': typeof AuthenticatedAppEmpresaIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -147,8 +166,10 @@ export interface FileRouteTypes {
     | '/app/ganhos'
     | '/app/notificacoes'
     | '/app/oportunidades'
+    | '/app/perfil'
     | '/app/vagas'
     | '/app/'
+    | '/app/empresa/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -160,8 +181,10 @@ export interface FileRouteTypes {
     | '/app/ganhos'
     | '/app/notificacoes'
     | '/app/oportunidades'
+    | '/app/perfil'
     | '/app/vagas'
     | '/app'
+    | '/app/empresa'
   id:
     | '__root__'
     | '/'
@@ -175,8 +198,10 @@ export interface FileRouteTypes {
     | '/_authenticated/app/ganhos'
     | '/_authenticated/app/notificacoes'
     | '/_authenticated/app/oportunidades'
+    | '/_authenticated/app/perfil'
     | '/_authenticated/app/vagas'
     | '/_authenticated/app/'
+    | '/_authenticated/app/empresa/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -273,11 +298,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppOportunidadesRouteImport
       parentRoute: typeof AuthenticatedAppRouteRoute
     }
+    '/_authenticated/app/perfil': {
+      id: '/_authenticated/app/perfil'
+      path: '/perfil'
+      fullPath: '/app/perfil'
+      preLoaderRoute: typeof AuthenticatedAppPerfilRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
+    }
     '/_authenticated/app/vagas': {
       id: '/_authenticated/app/vagas'
       path: '/vagas'
       fullPath: '/app/vagas'
       preLoaderRoute: typeof AuthenticatedAppVagasRouteImport
+      parentRoute: typeof AuthenticatedAppRouteRoute
+    }
+    '/_authenticated/app/empresa/': {
+      id: '/_authenticated/app/empresa/'
+      path: '/empresa'
+      fullPath: '/app/empresa/'
+      preLoaderRoute: typeof AuthenticatedAppEmpresaIndexRouteImport
       parentRoute: typeof AuthenticatedAppRouteRoute
     }
   }
@@ -289,8 +328,10 @@ interface AuthenticatedAppRouteRouteChildren {
   AuthenticatedAppGanhosRoute: typeof AuthenticatedAppGanhosRoute
   AuthenticatedAppNotificacoesRoute: typeof AuthenticatedAppNotificacoesRoute
   AuthenticatedAppOportunidadesRoute: typeof AuthenticatedAppOportunidadesRoute
+  AuthenticatedAppPerfilRoute: typeof AuthenticatedAppPerfilRoute
   AuthenticatedAppVagasRoute: typeof AuthenticatedAppVagasRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
+  AuthenticatedAppEmpresaIndexRoute: typeof AuthenticatedAppEmpresaIndexRoute
 }
 
 const AuthenticatedAppRouteRouteChildren: AuthenticatedAppRouteRouteChildren = {
@@ -299,8 +340,10 @@ const AuthenticatedAppRouteRouteChildren: AuthenticatedAppRouteRouteChildren = {
   AuthenticatedAppGanhosRoute: AuthenticatedAppGanhosRoute,
   AuthenticatedAppNotificacoesRoute: AuthenticatedAppNotificacoesRoute,
   AuthenticatedAppOportunidadesRoute: AuthenticatedAppOportunidadesRoute,
+  AuthenticatedAppPerfilRoute: AuthenticatedAppPerfilRoute,
   AuthenticatedAppVagasRoute: AuthenticatedAppVagasRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
+  AuthenticatedAppEmpresaIndexRoute: AuthenticatedAppEmpresaIndexRoute,
 }
 
 const AuthenticatedAppRouteRouteWithChildren =
