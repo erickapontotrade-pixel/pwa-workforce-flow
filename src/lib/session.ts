@@ -20,6 +20,8 @@ export const meQuery = queryOptions({
       supabase.from("company_users").select("company_id, role, companies(*)").eq("user_id", user.id),
     ]);
     if (roles.error) throw roles.error;
+    if (prof.error) throw prof.error;
+    if (cu.error) throw cu.error;
     const companies = (cu.data ?? []).map((r) => r.companies as Company).filter(Boolean);
     const roleList = (roles.data ?? []).map((r) => r.role as AppRole);
     return {
@@ -64,7 +66,9 @@ export function profileCompleteness(p: Professional | null, extra?: { skills?: n
 
 export function downloadCSV(filename: string, rows: Record<string, unknown>[]) {
   if (!rows.length) return;
-  const headers = Object.keys(rows[0]);
+  const first = rows[0];
+  if (!first) return;
+  const headers = Object.keys(first);
   const esc = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
   const csv = [headers.join(";"), ...rows.map((r) => headers.map((h) => esc(r[h])).join(";"))].join("\n");
   const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" });

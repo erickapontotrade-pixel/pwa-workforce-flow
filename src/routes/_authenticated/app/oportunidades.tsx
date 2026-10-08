@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/_authenticated/app/oportunidades")({ component: Mural });
+export const Route = createFileRoute("/_authenticated/app/oportunidades")({ head: () => ({ meta: [{ title: "Oportunidades — A Ponto MOVE" }, { name: "description", content: "Trabalhos freelancer compatíveis com seu perfil." }, { property: "og:title", content: "Oportunidades — A Ponto MOVE" }, { property: "og:description", content: "Trabalhos freelancer compatíveis com seu perfil." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }), component: Mural });
 
 function Mural() {
   const p = useMe().data?.professional;
@@ -20,18 +20,19 @@ function Mural() {
     queryKey: ["mural", p?.id],
     enabled: !!p,
     queryFn: async () => {
+      if (!p) throw new Error("Perfil profissional não encontrado");
       const [opps, mySkills, avail, apps] = await Promise.all([
         supabase.from("freelance_opportunities").select("*, companies(name)").in("status", ["publicada", "interessados", "selecionados"])
           .gte("starts_at", new Date().toISOString()).order("starts_at"),
-        supabase.from("professional_skills").select("skills(name)").eq("professional_id", p!.id),
-        supabase.from("availability").select("weekday,start_time,end_time,kind").eq("professional_id", p!.id),
-        supabase.from("freelance_applications").select("opportunity_id,status").eq("professional_id", p!.id),
+        supabase.from("professional_skills").select("skills(name)").eq("professional_id", p.id),
+        supabase.from("availability").select("weekday,start_time,end_time,kind").eq("professional_id", p.id),
+        supabase.from("freelance_applications").select("opportunity_id,status").eq("professional_id", p.id),
       ]);
-      if (opps.error) throw opps.error;
+      for (const r of [opps, mySkills, avail, apps]) if (r.error) throw r.error;
       const skills = (mySkills.data ?? []).map((s) => s.skills?.name).filter(Boolean) as string[];
       const statusBy = new Map((apps.data ?? []).map((a) => [a.opportunity_id, a.status]));
       return (opps.data ?? [])
-        .map((o) => ({ ...o, match: matchScore(p!, o, skills, avail.data ?? []), my: statusBy.get(o.id) }))
+        .map((o) => ({ ...o, match: matchScore(p, o, skills, avail.data ?? []), my: statusBy.get(o.id) }))
         .filter((o) => o.my !== "sem_interesse")
         .sort((a, b) => b.match.score - a.match.score);
     },
@@ -39,9 +40,10 @@ function Mural() {
 
   const respond = useMutation({
     mutationFn: async ({ id, interested, score }: { id: string; interested: boolean; score: number }) => {
-      if (p?.modality === "fixo") throw new Error("Sua modalidade é só Fixo. Altere no perfil para receber freelas.");
+      if (!p?.modality) throw new Error("Defina sua modalidade de trabalho no perfil.");
+      if (p.modality === "fixo") throw new Error("Sua modalidade é só Fixo. Altere no perfil para receber freelas.");
       const { error } = await supabase.from("freelance_applications").upsert(
-        { opportunity_id: id, professional_id: p!.id, status: interested ? "interessado" : "sem_interesse", match_score: score },
+        { opportunity_id: id, professional_id: p.id, status: interested ? "interessado" : "sem_interesse", match_score: score },
         { onConflict: "opportunity_id,professional_id" },
       );
       if (error) throw error;

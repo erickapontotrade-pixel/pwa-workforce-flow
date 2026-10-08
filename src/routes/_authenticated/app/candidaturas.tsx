@@ -7,7 +7,7 @@ import { Empty, ErrorState, Loading, PageHeader } from "@/components/move/states
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/_authenticated/app/candidaturas")({ component: Candidaturas });
+export const Route = createFileRoute("/_authenticated/app/candidaturas")({ head: () => ({ meta: [{ title: "Minhas candidaturas — A Ponto MOVE" }, { name: "description", content: "Acompanhe suas candidaturas e entrevistas." }, { property: "og:title", content: "Minhas candidaturas — A Ponto MOVE" }, { property: "og:description", content: "Acompanhe suas candidaturas e entrevistas." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }), component: Candidaturas });
 
 function Candidaturas() {
   const p = useMe().data?.professional;
@@ -15,9 +15,10 @@ function Candidaturas() {
     queryKey: ["my-apps-full", p?.id],
     enabled: !!p,
     queryFn: async () => {
+      if (!p) throw new Error("Perfil profissional não encontrado");
       const { data, error } = await supabase.from("applications")
         .select("*, jobs(title, city, companies(name)), interviews(scheduled_at, status, location)")
-        .eq("professional_id", p!.id).order("created_at", { ascending: false });
+        .eq("professional_id", p.id).order("created_at", { ascending: false });
       if (error) throw error;
       return data;
     },

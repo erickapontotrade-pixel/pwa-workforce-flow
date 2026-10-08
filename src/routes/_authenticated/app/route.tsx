@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 import {
-  Bell, Briefcase, Building2, CalendarCheck, FileBarChart, Home, LayoutDashboard, LogOut, Search, User, Wallet, Zap, ListChecks,
+  Bell, Briefcase, Building2, CalendarCheck, Home, LayoutDashboard, LogOut, User, Wallet, Zap, ListChecks,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useMe, errMsg } from "@/lib/session";
@@ -12,6 +12,7 @@ import { Loading, ErrorState } from "@/components/move/states";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/app")({
@@ -32,15 +33,11 @@ const PRO_EXTRA = [
 ] as const;
 const CO_NAV = [
   { to: "/app/empresa", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { to: "/app/empresa/vagas", label: "Vagas fixas", icon: Briefcase },
-  { to: "/app/empresa/freelas", label: "Move Freela", icon: Zap },
-  { to: "/app/empresa/talentos", label: "Banco de talentos", icon: Search },
-  { to: "/app/empresa/relatorios", label: "Relatórios", icon: FileBarChart },
-  { to: "/app/empresa/configuracoes", label: "Empresa e lojas", icon: Building2 },
 ] as const;
 
 function AppShell() {
   const me = useMe();
+  const [companyForm, setCompanyForm] = useState(false);
   const qc = useQueryClient();
   const navigate = useNavigate();
   const path = useRouterState({ select: (s) => s.location.pathname });
@@ -50,7 +47,8 @@ function AppShell() {
     enabled: !!me.data,
     refetchInterval: 60_000,
     queryFn: async () => {
-      const { count } = await supabase.from("notifications").select("id", { count: "exact", head: true }).is("read_at", null);
+      const { count, error } = await supabase.from("notifications").select("id", { count: "exact", head: true }).is("read_at", null);
+      if (error) throw error;
       return count ?? 0;
     },
   });
@@ -98,7 +96,7 @@ function AppShell() {
             </div>
           )}
           {!company && (
-            <Link to="/app/empresa/configuracoes" className="block px-3 text-xs text-sidebar-foreground/60 hover:text-sidebar-foreground">+ Cadastrar uma empresa</Link>
+            <Button variant="ghost" size="sm" onClick={() => setCompanyForm(true)}>+ Cadastrar uma empresa</Button>
           )}
         </nav>
         <div className="border-t border-sidebar-border p-3">
@@ -107,6 +105,7 @@ function AppShell() {
         </div>
       </aside>
 
+      <Dialog open={companyForm} onOpenChange={setCompanyForm}><DialogContent><DialogTitle>Cadastrar empresa</DialogTitle><Onboarding companyOnly onComplete={() => setCompanyForm(false)} /></DialogContent></Dialog>
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b bg-card/95 px-4 backdrop-blur lg:px-8">
           <div className="lg:hidden"><Logo /></div>
@@ -141,8 +140,8 @@ function AppShell() {
       {professional && !inCompany && (
         <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t bg-card pb-[env(safe-area-inset-bottom)] lg:hidden">
           {PRO_NAV.map((n) => (
-            <Link key={n.to} to={n.to} className={cn("flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium", isActive(n.to, n.exact) ? "text-primary" : "text-muted-foreground")}>
-              <n.icon className={cn("h-5 w-5", isActive(n.to, n.exact) && "text-primary")} />
+            <Link key={n.to} to={n.to} className={cn("flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium", isActive(n.to, "exact" in n && n.exact) ? "text-primary" : "text-muted-foreground")}>
+              <n.icon className={cn("h-5 w-5", isActive(n.to, "exact" in n && n.exact) && "text-primary")} />
               {n.label}
             </Link>
           ))}
@@ -152,7 +151,7 @@ function AppShell() {
   );
 }
 
-function Onboarding() {
+function Onboarding({ companyOnly = false, onComplete }: { companyOnly?: boolean; onComplete?: () => void }) {
   const qc = useQueryClient();
   const navigate = useNavigate();
   const [co, setCo] = useState({ name: "", cnpj: "", city: "", segment: "" });
@@ -162,33 +161,34 @@ function Onboarding() {
     setBusy(true);
     const { error } = await supabase.rpc("become_professional");
     setBusy(false);
-    if (error) return toast.error(errMsg(error));
+    if (error) { toast.error(errMsg(error)); return; }
     await qc.invalidateQueries({ queryKey: ["me"] });
     navigate({ to: "/app/perfil" });
   }
   async function createCo(e: React.FormEvent) {
     e.preventDefault();
-    if (co.name.trim().length < 2) return toast.error("Informe o nome da empresa");
+    if (co.name.trim().length < 2) { toast.error("Informe o nome da empresa"); return; }
     setBusy(true);
     const { error } = await supabase.rpc("create_company", { _name: co.name.trim(), _cnpj: co.cnpj, _city: co.city, _segment: co.segment });
     setBusy(false);
-    if (error) return toast.error(errMsg(error));
+    if (error) { toast.error(errMsg(error)); return; }
     toast.success("Empresa criada");
     await qc.invalidateQueries({ queryKey: ["me"] });
+    onComplete?.();
     navigate({ to: "/app/empresa" });
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-5 py-12">
-      <Logo />
-      <h1 className="mt-8 text-3xl font-bold">Como você vai usar a A Ponto MOVE?</h1>
-      <div className="mt-8 grid gap-5 md:grid-cols-2">
-        <div className="rounded-xl border bg-card p-6 shadow-card">
+    <div className={companyOnly ? "w-full" : "mx-auto max-w-4xl px-5 py-12"}>
+      {!companyOnly && <Logo />}
+      {!companyOnly && <h1 className="mt-8 text-3xl font-bold">Como você vai usar a A Ponto MOVE?</h1>}
+      <div className={companyOnly ? "space-y-4" : "mt-8 grid gap-5 md:grid-cols-2"}>
+        {!companyOnly && <div className="rounded-xl border bg-card p-6 shadow-card">
           <User className="h-6 w-6 text-primary" />
           <h2 className="mt-3 text-lg font-semibold">Quero trabalhar</h2>
           <p className="mt-1 text-sm text-muted-foreground">Crie seu perfil profissional e escolha Fixo, Freelancer ou os dois.</p>
           <Button className="mt-5" onClick={becomePro} disabled={busy}>Criar perfil profissional</Button>
-        </div>
+        </div>}
         <form onSubmit={createCo} className="space-y-3 rounded-xl border bg-card p-6 shadow-card">
           <Building2 className="h-6 w-6 text-primary" />
           <h2 className="text-lg font-semibold">Quero contratar</h2>

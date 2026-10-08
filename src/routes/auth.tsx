@@ -22,6 +22,8 @@ export const Route = createFileRoute("/auth")({
   validateSearch: search,
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { title: "Entrar ou criar conta — A Ponto MOVE" },
       { name: "description", content: "Acesse sua conta A Ponto MOVE como profissional ou empresa." },
       { property: "og:title", content: "Entrar — A Ponto MOVE" },
@@ -49,6 +51,10 @@ function AuthPage() {
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => { if (data.user) navigate({ to: "/app", replace: true }); });
+    const { data } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN" && session) navigate({ to: "/app", replace: true });
+    });
+    return () => data.subscription.unsubscribe();
   }, [navigate]);
 
   async function submit(e: React.FormEvent) {
@@ -62,7 +68,7 @@ function AuthPage() {
         setMode("entrar");
       } else if (mode === "cadastro") {
         const parsed = signupSchema.safeParse(form);
-        if (!parsed.success) throw new Error(parsed.error.issues[0].message);
+        if (!parsed.success) throw new Error(parsed.error.issues[0]?.message ?? "Dados inválidos");
         if (!consent) throw new Error("É preciso aceitar a política de privacidade (LGPD).");
         const { data, error } = await supabase.auth.signUp({
           email: parsed.data.email,
@@ -88,8 +94,11 @@ function AuthPage() {
   }
 
   async function google() {
-    const r = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin + "/auth" });
-    if (r.error) toast.error(errMsg(r.error));
+    setLoading(true);
+    try {
+      const r = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin + "/auth" });
+      if (r.error) throw r.error;
+    } catch (e) { toast.error(errMsg(e)); } finally { setLoading(false); }
   }
 
   return (
@@ -162,7 +171,7 @@ function AuthPage() {
               {mode !== "esqueci" && (
                 <>
                   <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground"><div className="h-px flex-1 bg-border" />ou<div className="h-px flex-1 bg-border" /></div>
-                  <Button variant="outline" className="w-full" onClick={google}>Continuar com Google</Button>
+                  <Button variant="outline" className="w-full" disabled={loading} onClick={google}>Continuar com Google</Button>
                 </>
               )}
               <p className="mt-6 text-center text-sm text-muted-foreground">
