@@ -15,6 +15,13 @@
       "when": 1791484264371,
       "tag": "0001_migration",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791486408630,
+      "tag": "0002_complete_core_entities_and_security",
+      "breakpoints": true
     }
   ]
 }
