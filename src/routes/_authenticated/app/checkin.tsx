@@ -14,7 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-export const Route = createFileRoute("/_authenticated/app/checkin")({ component: Checkin });
+export const Route = createFileRoute("/_authenticated/app/checkin")({ head: () => ({ meta: [{ title: "Agenda e check-in — A Ponto MOVE" }, { name: "description", content: "Convites, presença, execução e evidências." }, { property: "og:title", content: "Agenda e check-in — A Ponto MOVE" }, { property: "og:description", content: "Convites, presença, execução e evidências." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }), component: Checkin });
 
 function getPos(): Promise<{ lat: number | null; lng: number | null }> {
   return new Promise((res) => {
@@ -33,9 +33,10 @@ function Checkin() {
     queryKey: ["my-assignments", p?.id],
     enabled: !!p,
     queryFn: async () => {
+      if (!p) throw new Error("Perfil profissional não encontrado");
       const { data, error } = await supabase.from("freelance_assignments")
         .select("*, freelance_opportunities(title, activity_type, location_name, address, city), freelance_evidence(id, kind, sku)")
-        .eq("professional_id", p!.id).order("starts_at", { ascending: true });
+        .eq("professional_id", p.id).order("starts_at", { ascending: true });
       if (error) throw error;
       return data;
     },

@@ -4,12 +4,13 @@ import { ArrowRight, CalendarCheck, FileWarning, Star, Zap } from "lucide-react"
 import { supabase } from "@/integrations/supabase/client";
 import { useMe, brl, fmtDateTime, profileCompleteness } from "@/lib/session";
 import { ASSIGNMENT_LABEL, MODALITY_LABEL } from "@/lib/labels";
-import { Loading, Stat } from "@/components/move/states";
+import { ErrorState, Loading, Stat } from "@/components/move/states";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 
 export const Route = createFileRoute("/_authenticated/app/")({
+  head: () => ({ meta: [{ title: "Início — A Ponto MOVE" }, { name: "description", content: "Agenda, oportunidades e desempenho profissional." }, { property: "og:title", content: "Início — A Ponto MOVE" }, { property: "og:description", content: "Agenda, oportunidades e desempenho profissional." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }), 
   component: Home,
 });
 
@@ -20,18 +21,20 @@ function Home() {
     queryKey: ["pro-home", p?.id],
     enabled: !!p,
     queryFn: async () => {
+      if (!p) throw new Error("Perfil profissional não encontrado");
       const now = new Date().toISOString();
       const [next, opps, jobs, docs, earn, skills, exps, avail] = await Promise.all([
-        supabase.from("freelance_assignments").select("*, freelance_opportunities(title, location_name, city)").eq("professional_id", p!.id)
+        supabase.from("freelance_assignments").select("*, freelance_opportunities(title, location_name, city)").eq("professional_id", p.id)
           .in("status", ["convidado", "reservado", "em_execucao"]).gte("ends_at", now).order("starts_at").limit(3),
         supabase.from("freelance_opportunities").select("id", { count: "exact", head: true }).in("status", ["publicada", "interessados"]).gte("starts_at", now),
         supabase.from("jobs").select("id", { count: "exact", head: true }).eq("status", "publicada"),
-        supabase.from("documents").select("id,status,expires_at").eq("professional_id", p!.id),
-        supabase.from("freelance_earnings").select("amount,status").eq("professional_id", p!.id),
-        supabase.from("professional_skills").select("skill_id", { count: "exact", head: true }).eq("professional_id", p!.id),
-        supabase.from("professional_experiences").select("id", { count: "exact", head: true }).eq("professional_id", p!.id),
-        supabase.from("availability").select("id", { count: "exact", head: true }).eq("professional_id", p!.id),
+        supabase.from("documents").select("id,status,expires_at").eq("professional_id", p.id),
+        supabase.from("freelance_earnings").select("amount,status").eq("professional_id", p.id),
+        supabase.from("professional_skills").select("skill_id", { count: "exact", head: true }).eq("professional_id", p.id),
+        supabase.from("professional_experiences").select("id", { count: "exact", head: true }).eq("professional_id", p.id),
+        supabase.from("availability").select("id", { count: "exact", head: true }).eq("professional_id", p.id),
       ]);
+      for (const r of [next, opps, jobs, docs, earn, skills, exps, avail]) if (r.error) throw r.error;
       const d = docs.data ?? [];
       const soon = Date.now() + 30 * 864e5;
       return {
@@ -78,7 +81,7 @@ function Home() {
         {pct < 100 && <Link to="/app/perfil" className="mt-2 inline-block text-xs text-muted-foreground underline">Completar perfil aumenta sua compatibilidade</Link>}
       </div>
 
-      {data.isLoading ? <Loading /> : d && (
+      {data.error ? <ErrorState error={data.error} retry={() => data.refetch()} /> : data.isLoading ? <Loading /> : d && (
         <>
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             {isFreela && <Stat label="Freelas abertos" value={d.opps} />}

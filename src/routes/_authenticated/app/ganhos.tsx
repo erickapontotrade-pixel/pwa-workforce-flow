@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
-export const Route = createFileRoute("/_authenticated/app/ganhos")({ component: Ganhos });
+export const Route = createFileRoute("/_authenticated/app/ganhos")({ head: () => ({ meta: [{ title: "Meus ganhos — A Ponto MOVE" }, { name: "description", content: "Valores previstos, aprovados e pagos." }, { property: "og:title", content: "Meus ganhos — A Ponto MOVE" }, { property: "og:description", content: "Valores previstos, aprovados e pagos." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }), component: Ganhos });
 
 function Ganhos() {
   const p = useMe().data?.professional;
@@ -15,7 +15,8 @@ function Ganhos() {
     queryKey: ["earnings", p?.id],
     enabled: !!p,
     queryFn: async () => {
-      const { data, error } = await supabase.from("freelance_earnings").select("*, companies(name)").eq("professional_id", p!.id).order("reference_date", { ascending: false });
+      if (!p) throw new Error("Perfil profissional não encontrado");
+      const { data, error } = await supabase.from("freelance_earnings").select("*, companies(name)").eq("professional_id", p.id).order("reference_date", { ascending: false });
       if (error) throw error;
       return data;
     },

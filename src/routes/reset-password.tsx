@@ -11,6 +11,8 @@ import { errMsg } from "@/lib/session";
 export const Route = createFileRoute("/reset-password")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { title: "Redefinir senha — A Ponto MOVE" },
       { name: "description", content: "Defina uma nova senha para sua conta A Ponto MOVE." },
       { property: "og:title", content: "Redefinir senha — A Ponto MOVE" },

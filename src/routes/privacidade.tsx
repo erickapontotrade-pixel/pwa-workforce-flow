@@ -4,6 +4,8 @@ import { Logo } from "@/components/move/Logo";
 export const Route = createFileRoute("/privacidade")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { title: "Privacidade e LGPD — A Ponto MOVE" },
       { name: "description", content: "Como a A Ponto MOVE trata e protege seus dados pessoais conforme a LGPD." },
       { property: "og:title", content: "Privacidade e LGPD — A Ponto MOVE" },

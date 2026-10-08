@@ -1,13 +1,12 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 import { useMe, brl } from "@/lib/session";
 import { STAGE_LABEL, STAGES } from "@/lib/labels";
-import { Empty, Loading, PageHeader, Stat } from "@/components/move/states";
-import { Button } from "@/components/ui/button";
+import { Empty, ErrorState, Loading, PageHeader, Stat } from "@/components/move/states";
 
-export const Route = createFileRoute("/_authenticated/app/empresa/")({ component: Dash });
+export const Route = createFileRoute("/_authenticated/app/empresa/")({ head: () => ({ meta: [{ title: "Dashboard da empresa — A Ponto MOVE" }, { name: "description", content: "Indicadores de vagas, candidaturas e trabalhos freelancer." }, { property: "og:title", content: "Dashboard da empresa — A Ponto MOVE" }, { property: "og:description", content: "Indicadores de vagas, candidaturas e trabalhos freelancer." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }), component: Dash });
 
 function Dash() {
   const c = useMe().data?.company;
@@ -15,13 +14,15 @@ function Dash() {
     queryKey: ["co-dash", c?.id],
     enabled: !!c,
     queryFn: async () => {
+      if (!c) throw new Error("Nenhuma empresa vinculada");
       const [jobs, apps, opps, asg, earn] = await Promise.all([
-        supabase.from("jobs").select("id,status").eq("company_id", c!.id),
-        supabase.from("applications").select("stage, jobs!inner(company_id)").eq("jobs.company_id", c!.id),
-        supabase.from("freelance_opportunities").select("id,status").eq("company_id", c!.id),
-        supabase.from("freelance_assignments").select("status, executed").eq("company_id", c!.id),
-        supabase.from("freelance_earnings").select("amount,status").eq("company_id", c!.id),
+        supabase.from("jobs").select("id,status").eq("company_id", c.id),
+        supabase.from("applications").select("stage, jobs!inner(company_id)").eq("jobs.company_id", c.id),
+        supabase.from("freelance_opportunities").select("id,status").eq("company_id", c.id),
+        supabase.from("freelance_assignments").select("status, executed").eq("company_id", c.id),
+        supabase.from("freelance_earnings").select("amount,status").eq("company_id", c.id),
       ]);
+      for (const r of [jobs, apps, opps, asg, earn]) if (r.error) throw r.error;
       const a = asg.data ?? [];
       const done = a.filter((x) => x.executed != null);
       return {
@@ -35,13 +36,13 @@ function Dash() {
       };
     },
   });
-  if (!c) return <Empty title="Nenhuma empresa vinculada" action={<Button asChild><Link to="/app/empresa/configuracoes">Cadastrar empresa</Link></Button>} />;
+  if (!c) return <Empty title="Nenhuma empresa vinculada" />;
   const d = q.data;
   const funnel = STAGES.map((s) => ({ etapa: STAGE_LABEL[s], total: (d?.apps ?? []).filter((a) => a.stage === s).length }));
   return (
     <div className="space-y-6">
-      <PageHeader eyebrow={c.name} title="Dashboard" actions={<><Button asChild variant="signal" size="sm"><Link to="/app/empresa/freelas">Publicar freela</Link></Button><Button asChild size="sm"><Link to="/app/empresa/vagas">Publicar vaga</Link></Button></>} />
-      {q.isLoading || !d ? <Loading /> : (
+      <PageHeader eyebrow={c.name} title="Dashboard" />
+      {q.error ? <ErrorState error={q.error} retry={() => q.refetch()} /> : q.isLoading || !d ? <Loading /> : (
         <>
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             <Stat label="Vagas abertas" value={d.jobs} />

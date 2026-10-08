@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 
-export const Route = createFileRoute("/_authenticated/app/vagas")({ component: Vagas });
+export const Route = createFileRoute("/_authenticated/app/vagas")({ head: () => ({ meta: [{ title: "Vagas — A Ponto MOVE" }, { name: "description", content: "Oportunidades de trabalho fixo." }, { property: "og:title", content: "Vagas — A Ponto MOVE" }, { property: "og:description", content: "Oportunidades de trabalho fixo." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }), component: Vagas });
 
 function Vagas() {
   const me = useMe();
@@ -28,7 +28,12 @@ function Vagas() {
   const mine = useQuery({
     queryKey: ["my-apps", p?.id],
     enabled: !!p,
-    queryFn: async () => (await supabase.from("applications").select("job_id").eq("professional_id", p!.id)).data ?? [],
+    queryFn: async () => {
+      if (!p) throw new Error("Perfil profissional não encontrado");
+      const { data, error } = await supabase.from("applications").select("job_id").eq("professional_id", p.id);
+      if (error) throw error;
+      return data ?? [];
+    },
   });
   const apply = useMutation({
     mutationFn: async (job_id: string) => {

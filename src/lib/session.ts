@@ -20,6 +20,8 @@ export const meQuery = queryOptions({
       supabase.from("company_users").select("company_id, role, companies(*)").eq("user_id", user.id),
     ]);
     if (roles.error) throw roles.error;
+    if (prof.error) throw prof.error;
+    if (cu.error) throw cu.error;
     const companies = (cu.data ?? []).map((r) => r.companies as Company).filter(Boolean);
     const roleList = (roles.data ?? []).map((r) => r.role as AppRole);
     return {

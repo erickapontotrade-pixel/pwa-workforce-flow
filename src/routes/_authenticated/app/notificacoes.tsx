@@ -1,12 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { fmtDateTime } from "@/lib/session";
+import { fmtDateTime, errMsg } from "@/lib/session";
 import { Empty, ErrorState, Loading, PageHeader } from "@/components/move/states";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/_authenticated/app/notificacoes")({ component: Notifs });
+export const Route = createFileRoute("/_authenticated/app/notificacoes")({ head: () => ({ meta: [{ title: "Notificações — A Ponto MOVE" }, { name: "description", content: "Avisos de candidaturas e trabalhos." }, { property: "og:title", content: "Notificações — A Ponto MOVE" }, { property: "og:description", content: "Avisos de candidaturas e trabalhos." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }), component: Notifs });
 
 function Notifs() {
   const qc = useQueryClient();
@@ -19,7 +20,9 @@ function Notifs() {
     },
   });
   async function readAll() {
-    await supabase.from("notifications").update({ read_at: new Date().toISOString() }).is("read_at", null);
+    const { error } = await supabase.from("notifications").update({ read_at: new Date().toISOString() }).is("read_at", null);
+    if (error) return toast.error(errMsg(error));
+    toast.success("Notificações marcadas como lidas");
     qc.invalidateQueries({ queryKey: ["notifs"] });
     qc.invalidateQueries({ queryKey: ["notif-count"] });
   }
