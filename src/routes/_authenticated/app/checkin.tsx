@@ -111,7 +111,7 @@ function AssignmentCard({ a }: { a: A }) {
       const up = await supabase.storage.from("move-files").upload(path, file);
       if (up.error) throw up.error;
       const { error } = await supabase.from("freelance_evidence").insert({ assignment_id: a.id, kind, file_path: path, sku: sku || null, created_by: me.user.id });
-      if (error) throw error;
+      if (error) { const cleanup = await supabase.storage.from("move-files").remove([path]); if (cleanup.error) toast.error("Arquivo enviado, mas não vinculado. Tente novamente."); throw error; }
       toast.success("Evidência enviada");
       setSku("");
       refresh();

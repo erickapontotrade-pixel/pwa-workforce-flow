@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useState } from "react";
 import { Car, Clock, MapPin, Shirt } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useMe, brl, errMsg, fmtDateTime } from "@/lib/session";
@@ -10,10 +11,12 @@ import { Empty, ErrorState, Loading, PageHeader } from "@/components/move/states
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
 
 export const Route = createFileRoute("/_authenticated/app/oportunidades")({ head: () => ({ meta: [{ title: "Oportunidades — A Ponto MOVE" }, { name: "description", content: "Trabalhos freelancer compatíveis com seu perfil." }, { property: "og:title", content: "Oportunidades — A Ponto MOVE" }, { property: "og:description", content: "Trabalhos freelancer compatíveis com seu perfil." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }), component: Mural });
 
 function Mural() {
+  const [filter, setFilter] = useState("");
   const p = useMe().data?.professional;
   const qc = useQueryClient();
   const q = useQuery({
@@ -31,7 +34,9 @@ function Mural() {
       for (const r of [opps, mySkills, avail, apps]) if (r.error) throw r.error;
       const skills = (mySkills.data ?? []).map((s) => s.skills?.name).filter(Boolean) as string[];
       const statusBy = new Map((apps.data ?? []).map((a) => [a.opportunity_id, a.status]));
+      const names = new Map(await Promise.all(Array.from(new Set((opps.data ?? []).map(o => o.company_id))).map(async id => { const r = await supabase.rpc("company_display_name", { _id: id }); if (r.error) throw r.error; return [id, r.data] as const; })));
       return (opps.data ?? [])
+        .map(o => ({ ...o, companies: { name: names.get(o.company_id) } }))
         .map((o) => ({ ...o, match: matchScore(p, o, skills, avail.data ?? []), my: statusBy.get(o.id) }))
         .filter((o) => o.my !== "sem_interesse")
         .sort((a, b) => b.match.score - a.match.score);
@@ -57,11 +62,12 @@ function Mural() {
   return (
     <div>
       <PageHeader eyebrow="Move Freela" title="Oportunidades para você" desc="Ordenadas pela compatibilidade com seu perfil, agenda e região." />
+      <Input aria-label="Buscar oportunidades" className="mb-4 max-w-md" placeholder="Título, cidade, atividade ou local" value={filter} onChange={e => setFilter(e.target.value)} />
       {q.isLoading ? <Loading /> : q.error ? <ErrorState error={q.error} retry={() => q.refetch()} /> : !q.data?.length ? (
         <Empty title="Nenhuma oportunidade agora">Complete habilidades e disponibilidade no perfil para receber mais oportunidades.</Empty>
       ) : (
         <div className="grid gap-3 md:grid-cols-2">
-          {q.data.map((o) => {
+          {q.data.filter(o => !filter || `${o.title} ${o.city} ${o.activity_type} ${o.location_name}`.toLowerCase().includes(filter.toLowerCase())).map((o) => {
             const hours = Math.round((new Date(o.ends_at).getTime() - new Date(o.starts_at).getTime()) / 36e5);
             const s = o.match.score;
             return (
@@ -82,6 +88,7 @@ function Mural() {
                   <span className="flex items-center gap-1.5 text-muted-foreground"><MapPin className="h-4 w-4" />{o.location_name ?? o.city ?? "—"}</span>
                 </div>
                 <p className="mt-3 font-display text-xl font-bold">{brl(o.pay_amount)}<span className="text-sm font-normal text-muted-foreground">{PAY_UNIT_LABEL[o.pay_unit]}</span></p>
+                <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">{o.description}</p>
                 {o.requirements && <p className="mt-1 text-xs text-muted-foreground">Requisitos: {o.requirements}</p>}
                 <div className="mt-2 flex flex-wrap gap-1.5">
                   {o.requires_vehicle && <Badge variant="outline"><Car className="mr-1 h-3 w-3" />Veículo</Badge>}
