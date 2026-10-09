@@ -36,6 +36,13 @@
       "when": 1791486923096,
       "tag": "0004_scope_store_reads_to_company",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791504854767,
+      "tag": "0005_preserve_candidate_history_and_staff_publication",
+      "breakpoints": true
     }
   ]
 }
