@@ -2,14 +2,18 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
-import { useMe, brl } from "@/lib/session";
+import { brl, type Company } from "@/lib/session";
+import { CompanyScope } from "@/components/move/core";
 import { STAGE_LABEL, STAGES } from "@/lib/labels";
 import { Empty, ErrorState, Loading, PageHeader, Stat } from "@/components/move/states";
 
 export const Route = createFileRoute("/_authenticated/app/empresa/")({ head: () => ({ meta: [{ title: "Dashboard da empresa — A Ponto MOVE" }, { name: "description", content: "Indicadores de vagas, candidaturas e trabalhos freelancer." }, { property: "og:title", content: "Dashboard da empresa — A Ponto MOVE" }, { property: "og:description", content: "Indicadores de vagas, candidaturas e trabalhos freelancer." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }), component: Dash });
 
 function Dash() {
-  const c = useMe().data?.company;
+  return <CompanyScope>{c => <CompanyDashboard c={c} />}</CompanyScope>;
+}
+
+function CompanyDashboard({ c }: { c: Company }) {
   const q = useQuery({
     queryKey: ["co-dash", c?.id],
     enabled: !!c,
