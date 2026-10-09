@@ -1,0 +1,3 @@
+CREATE POLICY "staff job insert" ON public.jobs FOR INSERT TO authenticated WITH CHECK(public.is_staff(auth.uid()) AND created_by=auth.uid());
+CREATE POLICY "staff opportunity insert" ON public.freelance_opportunities FOR INSERT TO authenticated WITH CHECK(public.is_staff(auth.uid()) AND created_by=auth.uid());
+CREATE POLICY "candidate job history" ON public.jobs FOR SELECT TO authenticated USING(EXISTS(SELECT 1 FROM public.applications a WHERE a.job_id=jobs.id AND a.professional_id=public.my_professional_id()));

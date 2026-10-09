@@ -16,3 +16,4 @@
 - Enterprise modules use shared company selection and existing browser client with RLS; ordinary access never uses privileged clients.
 - Shared record forms own input validation and error states, while focused module components own table-specific persistence.
 - Company private rows are member/staff scoped; published opportunities expose company names through a narrow display-name function instead of exposing company records.
+- Company dashboards reuse company selection like management pages, so staff without a company membership can inspect authorized companies without a separate panel.
